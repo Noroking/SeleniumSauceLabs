@@ -1,37 +1,38 @@
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import model.Product;
 import org.testng.annotations.Test;
+import pages.LoginPage;
+import pages.ProductsListPage;
+import pages.ShoppingCartPage;
+
+import static com.codeborne.selenide.Selenide.open;
 
 public class SauceLabsTest {
-    private final String BASE_URL = "https://www.saucedemo.com";
-    private WebDriver webDriver;
 
-    @BeforeSuite
-    public void setUp() {
-        WebDriverManager.firefoxdriver().setup();
-    }
-    @BeforeMethod
-    public void beforeTest() {
-        webDriver = new FirefoxDriver();
-    }
-    @AfterMethod
-    public void tearDown() {
-        webDriver.quit();
-    }
+    LoginPage loginPage = new LoginPage();
+    ProductsListPage productsListPage = new ProductsListPage();
+    ShoppingCartPage shoppingCartPage = new ShoppingCartPage();
+
+    private final String BASE_URL = "https://www.saucedemo.com";
 
     @Test
     public void goToHomePage() {
-        webDriver.get(BASE_URL);
-        webDriver.findElement(By.id("user-name")).sendKeys("standard_user");
-        webDriver.findElement(By.id("password")).sendKeys("secret_sauce");
-        webDriver.findElement(By.id("login-button")).click();
-        final String title = webDriver.findElement(By.xpath("//span[@class='title']")).getText();
-        Assert.assertEquals(title, "PRODUCTS");
+        open(BASE_URL);
+        loginPage.login("standard_user", "secret_sauce");
+        productsListPage.titleShouldBeVisible();
+    }
+    @Test
+    public void buyItem() {
+        open(BASE_URL);
+        loginPage.login("standard_user", "secret_sauce");
+        productsListPage.titleShouldBeVisible();
+        Product fleeceJacket = new Product("Sauce Labs Fleece Jacket", 49.99);
+        Product bikeLight = new Product("Sauce Labs Bike Light", 9.99);
+        productsListPage.addItemToCart(fleeceJacket.GetName());
+        productsListPage.addItemToCart(bikeLight.GetName());
+        productsListPage.goToShoppingCart();
+        shoppingCartPage.titleShouldBeVisible();
+
+        Product[] products = {fleeceJacket, bikeLight};
+        shoppingCartPage.CheckItemsVisible(products);
     }
 }

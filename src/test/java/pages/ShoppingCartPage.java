@@ -13,7 +13,7 @@ public class ShoppingCartPage extends MyPage {
     public ShoppingCartPage() {
         title = "YOUR CART";
     }
-    SelenideElement checkOutButton = $("button.checkout");
+    SelenideElement checkOutButton = $("button#checkout");
 
     public void CheckItemsVisible(Product[] items) {
         for (Product item:items) {
@@ -23,5 +23,8 @@ public class ShoppingCartPage extends MyPage {
                     .$(priceElementString)
                     .shouldHave(text(stringPrice));
         }
+    }
+    public void ClickCheckout() {
+        checkOutButton.click();
     }
 }
